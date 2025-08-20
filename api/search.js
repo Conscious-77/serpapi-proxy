@@ -1,35 +1,36 @@
 // 文件路径: /api/search.js
 
-const { getJson } = require("google-search-results");
+// 引入正确的Node.js库
+import { getJson } from "serpapi";
 
-// 这是Vercel的Serverless Function固定格式
-export default function handler(request, response) {
-  // 从环境变量中安全地读取你的SerpApi Key
+// 将函数声明为 async 异步函数
+export default async function handler(request, response) {
   const apiKey = process.env.SERPAPI_API_KEY;
 
   if (!apiKey) {
     return response.status(500).json({ error: "SerpApi API Key未在环境变量中设置。" });
   }
 
-  // 从前端请求的URL中获取搜索参数
-  // 例如: /api/search?query=你好&engine=google
   const query = request.query.query;
-  const engine = request.query.engine || 'google'; // 如果不指定，默认为google
+  const engine = request.query.engine || 'google'; 
 
   if (!query) {
     return response.status(400).json({ error: "缺少'query'参数。" });
   }
 
-  // 构造SerpApi的请求参数
   const params = {
     q: query,
     engine: engine,
     api_key: apiKey,
   };
 
-  // 调用SerpApi库发起搜索，并设置回调函数
-  getJson(params, (json) => {
-    // 收到SerpApi的结果后，将其作为响应返回给前端
+  try {
+    // 使用 await 等待异步搜索结果
+    const json = await getJson(params);
+    // 成功后，将结果返回
     return response.status(200).json(json);
-  });
+  } catch (error) {
+    // 如果搜索过程出错，捕获并返回错误信息
+    return response.status(500).json({ error: `调用SerpApi时出错: ${error.message}` });
+  }
 }
