@@ -9,6 +9,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "google-search-results": "^2.1.0"
+    "serpapi": "^2.1.0"
   }
 }
